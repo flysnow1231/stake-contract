@@ -1,3 +1,32 @@
+## MetaNodeStake 架构说明
+MetaNodeStake 是一个基于 UUPSUpgradeable + AccessControl 的多池质押挖矿合约，支持 ETH 与 ERC20 两类质押资产。
+
+### 核心特性
+- 支持多 Pool 权重分配
+- 按区块发放 MetaNode 奖励
+- 使用 accMetaNodePerST 模型累计池子奖励
+- 使用 finishedMetaNode / pendingMetaNode 结算用户奖励
+- 支持 unstake 后锁仓，再 withdraw 提现
+- 支持 claim / withdraw 独立暂停
+- 支持 UUPS 升级
+
+### 奖励模型
+奖励先在 Pool 维度累计到 `accMetaNodePerST`，用户在交互时再根据：
+`user.stAmount * pool.accMetaNodePerST - user.finishedMetaNode + user.pendingMetaNode`
+计算出当前可领取奖励。
+
+### 质押与提现
+- ETH 通过 `depositETH()` 进入 0 号池
+- ERC20 通过 `deposit(pid, amount)` 进入对应池
+- `unstake()` 只会生成解质押请求，不立即到账
+- `withdraw()` 只能提取已经达到 unlockBlocks 的请求金额
+
+### 权限模型
+- `ADMIN_ROLE` 负责参数配置、加池、调权重、暂停功能
+- `UPGRADE_ROLE` 负责实现合约升级  
+![合约流程图](https://github.com/flysnow1231/stake-contract/blob/main/mermaid-diagram.png)
+
+
 # MetaNode stake contract
 这个项目两个坑：
 1.存在pckage_lock.json文件
