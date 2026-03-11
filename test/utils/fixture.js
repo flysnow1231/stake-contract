@@ -3,10 +3,10 @@ const { ethers, upgrades } = require("hardhat")
 async function deployFixture() {
   const [a0, admin, user1, user2, user3] = await ethers.getSigners()
 
-  const metaNodePerBlock = 100n
+  const metaNodePerBlock = 1000000000000000n
   const blockHight = 10000
   const provider = ethers.provider
-  const unstakeLockedBlocks = 10
+  const unstakeLockedBlocks = 4
   const zeroAddress = "0x0000000000000000000000000000000000000000"
 
   // 部署 ERC20 合约
@@ -32,19 +32,19 @@ async function deployFixture() {
     .connect(admin)
     .addPool(zeroAddress, 5, 10n ** 15n, unstakeLockedBlocks, false)
 
+     // 部署后新增 erc20 质押池
+  await stakeProxyContract
+    .connect(admin)
+    .addPool(erc20Contract.getAddress(), 10, 10n ** 15n, unstakeLockedBlocks, false)
+
+  await erc20Contract.connect(admin).transfer(stakeProxyContract, ethers.parseEther("1000000000000000"))
+ 
   return {
-    a0,
     admin,
     user1,
     user2,
     user3,
     erc20Contract,
-    erc20ddress,
-    blockNumber,
-    blockHight,
-    metaNodePerBlock,
-    unstakeLockedBlocks,
-    zeroAddress,
     stakeProxyContract,
   }
 }

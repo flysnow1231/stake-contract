@@ -10,6 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "hardhat/console.sol";
 
 contract MetaNodeStake is
     Initializable,
@@ -695,9 +696,12 @@ contract MetaNodeStake is
         }
 
         if (pendingWithdraw_ > 0) {
+            console.log("start to transfer");
             if (pool_.stTokenAddress == address(0x0)) {
+                console.log("start to transfer eth", pendingWithdraw_);
                 _safeETHTransfer(msg.sender, pendingWithdraw_);
             } else {
+                console.log("start to erc20", pendingWithdraw_);
                 IERC20(pool_.stTokenAddress).safeTransfer(
                     msg.sender,
                     pendingWithdraw_
